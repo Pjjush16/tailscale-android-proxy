@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 通用 -->
+    <string name="log_in">登录</string>
+    <string name="log_out">退出登录</string>
+    <string name="none">无</string>
+    <string name="connect">连接</string>
+    <string name="disconnect">断开连接</string>
+    <string name="unknown_user">未知用户</string>
+    <string name="connected">已连接</string>
+    <string name="using_exit_node">使用出口节点 (%s)</string>
+    <string name="not_connected">未连接</string>
+    <string name="selected">已选择</string>
+    <string name="offline">离线</string>
+    <string name="ok">确定</string>
+    <string name="_continue">继续</string>
+    <string name="warning">警告</string>
+    <string name="search">搜索</string>
+    <string name="search_ellipsis">搜索...</string>
+    <string name="dismiss">关闭</string>
+    <string name="no_results">无结果</string>
+    <string name="back">返回</string>
+    <string name="clear_search">清除搜索</string>
+    <string name="off">关</string>
+    <string name="on">开</string>
+    <string name="try_again">重试</string>
+    <string name="cancel">取消</string>
+
+    <!-- 关于页面 -->
+    <string name="version">版本</string>
+    <string name="about_view_header">关于 Tailscale</string>
+    <string name="about_view_title">Tailscale for Android</string>
+    <string name="acknowledgements">致谢</string>
+    <string name="privacy_policy">隐私政策</string>
+    <string name="terms_of_service">服务条款</string>
+    <string name="about_view_footnotes">WireGuard 是 Jason A. Donenfeld 的注册商标。\n\n© 2024 Tailscale Inc. 保留所有权利。\nTailscale 是 Tailscale Inc. 的注册商标。</string>
+    <string name="managed_by">管理者</string>
+
+    <!-- Bug 报告 -->
+    <string name="bug_report_title">报告问题</string>
+    <string name="bug_report_instructions_prefix">要报告问题，请</string>
+    <string name="bug_report_instructions_linktext">联系我们的支持团队</string>
+    <string name="bug_report_instructions_suffix">，并包含下方的标识符。</string>
+    <string name="bug_report_id_desc">此 ID 帮助我们在诊断日志中找到该事件。此过程不会共享您的个人身份信息。</string>
+
+    <!-- 设置页面 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_admin_prefix">"在"</string>
+    <string name="settings_admin_link">管理控制台</string>
+    <string name="about_tailscale">关于 Tailscale</string>
+    <string name="bug_report">问题反馈</string>
+    <string name="use_ts_dns">使用 Tailscale DNS</string>
+    <string name="internal_debug_options">内部调试选项</string>
+
+    <!-- 主页面 -->
+    <string name="exit_node">出口节点</string>
+    <string name="exit_node_offline">出口节点离线</string>
+    <string name="running_exit_node">在此设备上运行</string>
+    <string name="exit_node_offline_mdm_orgname">由 %1$s 选择的出口节点当前离线。互联网流量被阻止。请联系网络管理员获取帮助。</string>
+    <string name="exit_node_offline_mdm">由您的组织选择的出口节点当前离线。互联网流量被阻止。请联系网络管理员获取帮助。</string>
+    <string name="starting">正在启动...</string>
+    <string name="connect_to_tailnet_prefix">"重新连接以与"</string>
+    <string name="connect_to_tailnet_suffix">"网络中的其他设备通信。"</string>
+    <string name="welcome_to_tailscale">欢迎使用 Tailscale</string>
+    <string name="login_to_join_your_tailnet">登录以加入您的 tailnet 并连接您的设备。</string>
+    <string name="give_permissions">设置 VPN 连接以开始使用 Tailscale。</string>
+    <string name="keyExpiryExplainer">重新认证以保持连接到 Tailscale。</string>
+    <string name="deviceKeyNeverExpires">设备密钥永不过期</string>
+    <string name="deviceKeyExpires">设备密钥过期时间 %s</string>
+    <string name="deviceKeyExpired">设备密钥已过期 %s</string>
+    <string name="machine_auth_required">需要管理员审批</string>
+    <string name="machine_auth_explainer">此设备必须经过管理员审批后才能连接到 tailnet。</string>
+    <string name="open_admin_console">打开管理控制台</string>
+    <string name="needs_machine_auth">需要授权</string>
+    <string name="disable">禁用</string>
+    <string name="enable">启用</string>
+    <string name="stop">停止</string>
+
+    <!-- 设备详情 -->
+    <string name="os">操作系统</string>
+    <string name="key_expiry">密钥过期</string>
+    <string name="tailscale_addresses">Tailscale 地址</string>
+
+    <!-- MDM 设置 -->
+    <string name="current_mdm_settings">当前 MDM 设置</string>
+    <string name="mdm_settings">MDM 设置</string>
+    <string name="managed_by_orgName">由 %1$s 管理</string>
+    <string name="managed_by_explainer">您的组织正在管理此设备上的 Tailscale。某些功能可能已被系统管理员自定义或隐藏。</string>
+    <string name="managed_by_explainer_orgName">%1$s 正在管理此设备上的 Tailscale。某些功能可能已被系统管理员自定义或隐藏。</string>
+    <string name="open_support">打开支持</string>
+
+    <!-- 状态 -->
+    <string name="please_login">需要登录</string>
+    <string name="stopped">未连接</string>
+    <string name="vpn_permission_needed">需要 VPN 权限</string>
+    <string name="vpn_explainer">Tailscale 需要 VPN 权限才能创建安全隧道。</string>
+    <string name="vpn_permission_denied">VPN 权限被拒绝</string>
+    <string name="multiple_vpn_explainer">检测到另一个 VPN。请前往设置禁用其他 VPN 后重试。</string>
+    <string name="go_to_settings">前往设置</string>
+
+    <!-- DNS 设置 -->
+    <string name="dns_settings">DNS 设置</string>
+    <string name="using_tailscale_dns">使用 Tailscale DNS</string>
+    <string name="not_using_tailscale_dns">未使用 Tailscale DNS</string>
+
+    <!-- 分流 -->
+    <string name="split_tunneling">分流</string>
+    <string name="filter_apps_allowed_to_access_tailscale">过滤允许访问 Tailscale 的应用</string>
+
+    <!-- Tailnet 锁定 -->
+    <string name="tailnet_lock">Tailnet 锁定</string>
+    <string name="enabled">已启用</string>
+    <string name="disabled">已禁用</string>
+
+    <!-- 子网路由 -->
+    <string name="subnet_routing">子网路由</string>
+
+    <!-- 权限 -->
+    <string name="permissions">权限</string>
+
+    <!-- Taildrop -->
+    <string name="taildrop_directory_picker_title">选择 Taildrop 目录</string>
+    <string name="taildrop_directory_picker_button">选择</string>
+    <string name="taildrop_directory_picker_body">Taildrop 需要一个目录来接收文件。</string>
+    <string name="taildrop_directory_picker_info">了解更多关于 Taildrop 的信息</string>
+
+    <!-- 远程日志 -->
+    <string name="client_remote_logging_enabled">远程日志记录</string>
+    <string name="client_remote_logging_enabled_subtitle">启用以帮助改善 Tailscale</string>
+    <string name="client_remote_logging_enabled_subtitle_mdm">由您的组织启用</string>
+    <string name="client_remote_logging_disable_confirm_title">禁用远程日志记录？</string>
+    <string name="client_remote_logging_disable_confirm_message">这将停止向 Tailscale 发送诊断数据。</string>
+    <string name="client_remote_logging_disable_confirm_button">禁用</string>
+
+    <!-- 通知 -->
+    <string name="notifications">通知</string>
+    <string name="notifications_title">通知设置</string>
+    <string name="notifications_body">配置 Tailscale 通知。</string>
+
+    <!-- 内置浏览器 -->
+    <string name="built_in_browser">内置浏览器</string>
+    <string name="open_browser">打开浏览器</string>
+    <string name="vpn_off_browser_hint">VPN 已关闭 - 设备列表仍然可见。打开 VPN 开关以通过 Tailscale 隧道访问其他设备。</string>
+</resources>
