@@ -15,20 +15,25 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * 内置浏览器 - 自动检测 VPN 状态
- * - VPN 开启时：流量自动走 Tailscale 隧道，无需配置代理
- * - VPN 关闭时：显示提示，需要先开启 VPN 才能访问 Tailnet 设备
+ * 内置浏览器 - 智能代理检测
+ *
+ * - 全局模式（VPN）开启时 → 不走代理，流量自动走 Tailscale 隧道
+ * - 应用代理模式（VPN 关闭）→ 走 127.0.0.1:8080 代理
  */
 class BuiltInBrowserActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var urlEditText: EditText
     private lateinit var progressBar: ProgressBar
+    private lateinit var statusText: TextView
 
     companion object {
         private const val TAG = "BuiltInBrowser"
+        private const val PROXY_HOST = "127.0.0.1"
+        private const val PROXY_PORT = 8080
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -36,10 +41,22 @@ class BuiltInBrowserActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val vpnActive = isVpnActive()
+        val useProxy = !vpnActive  // VPN 关 → 走代理; VPN 开 → 不走代理
 
         // 创建布局
         val layout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+        }
+
+        // 状态栏
+        statusText = TextView(this).apply {
+            setPadding(8, 4, 8, 4)
+            textSize = 12f
+            text = if (vpnActive) {
+                "🟢 全局模式 - 流量自动走 Tailscale 隧道"
+            } else {
+                "🔵 应用代理模式 - 通过 SOCKS5/HTTP 代理访问"
+            }
         }
 
         // URL 栏
@@ -64,11 +81,7 @@ class BuiltInBrowserActivity : AppCompatActivity() {
             setOnClickListener {
                 val url = urlEditText.text.toString()
                 if (url.isNotBlank()) {
-                    if (vpnActive) {
-                        loadUrl(url)
-                    } else {
-                        showVpnOffWarning()
-                    }
+                    loadUrl(url)
                 }
             }
         }
@@ -118,12 +131,8 @@ class BuiltInBrowserActivity : AppCompatActivity() {
             settings.allowContentAccess = true
         }
 
-        // VPN 开启时不需要代理，流量自动走 Tailscale 隧道
-        if (!vpnActive) {
-            Log.d(TAG, "VPN 未激活 - 浏览器仅作为提醒")
-        } else {
-            Log.d(TAG, "VPN 已激活 - 流量自动走 Tailscale 隧道")
-        }
+        // 配置代理
+        configureProxy(webView, useProxy)
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
@@ -149,60 +158,100 @@ class BuiltInBrowserActivity : AppCompatActivity() {
             }
         }
 
+        layout.addView(statusText)
         layout.addView(urlBar)
         layout.addView(progressBar)
         layout.addView(webView)
 
         setContentView(layout)
 
-        // 加载初始 URL 或显示欢迎页
+        // 加载欢迎页
         val initialUrl = intent.getStringExtra("url")
-        if (initialUrl != null && vpnActive) {
+        if (initialUrl != null) {
             urlEditText.setText(initialUrl)
             loadUrl(initialUrl)
         } else {
-            val modeText = if (vpnActive) {
-                "✅ VPN 已开启 - 流量自动走 Tailscale 隧道"
-            } else {
-                "⚠️ VPN 已关闭 - 请先开启 VPN 开关"
-            }
-            webView.loadData(
-                """
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
-                        h1 { color: #333; }
-                        .info { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; }
-                        .mode { background: ${if (vpnActive) "#e8f5e9" else "#fff3e0"}; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 16px; }
-                    </style>
-                </head>
-                <body>
-                    <h1>🌐 Tailscale 内置浏览器</h1>
-                    <div class="mode">
-                        <strong>当前状态:</strong> $modeText
-                    </div>
-                    <div class="info">
-                        <h2>使用方法</h2>
-                        <ol>
-                            <li>在地址栏输入 URL（如 http://100.x.x.x/）</li>
-                            <li>点击播放按钮或按回车</li>
-                            ${if (vpnActive) "<li>浏览器会通过 Tailscale 隧道访问目标</li>" else "<li>请先在主页面开启 VPN 开关</li>"}
-                        </ol>
-                    </div>
-                    <div class="info">
-                        <h2>示例地址</h2>
-                        <p>http://100.64.0.1/ - 访问 Tailnet 内的 HTTP 服务器</p>
-                        <p>http://100.64.0.2:8080/ - 访问带端口的服务</p>
-                    </div>
-                </body>
-                </html>
-                """.trimIndent(),
-                "text/html",
-                "UTF-8"
-            )
+            showWelcomePage(useProxy)
         }
+    }
+
+    /**
+     * 配置 WebView 代理
+     * - useProxy=true（应用代理模式）→ 设置系统代理 127.0.0.1:8080
+     * - useProxy=false（全局VPN模式）→ 清除代理，流量直接走隧道
+     */
+    @Suppress("DEPRECATION")
+    private fun configureProxy(webView: WebView, useProxy: Boolean) {
+        if (useProxy) {
+            // 应用代理模式 - 通过 HTTP 代理访问
+            try {
+                System.setProperty("http.proxyHost", PROXY_HOST)
+                System.setProperty("http.proxyPort", PROXY_PORT.toString())
+                System.setProperty("https.proxyHost", PROXY_HOST)
+                System.setProperty("https.proxyPort", PROXY_PORT.toString())
+                Log.d(TAG, "应用代理模式 - 代理已配置: $PROXY_HOST:$PROXY_PORT")
+            } catch (e: Exception) {
+                Log.e(TAG, "代理配置失败: ${e.message}")
+            }
+        } else {
+            // 全局VPN模式 - 清除代理，流量自动走 Tailscale 隧道
+            try {
+                System.clearProperty("http.proxyHost")
+                System.clearProperty("http.proxyPort")
+                System.clearProperty("https.proxyHost")
+                System.clearProperty("https.proxyPort")
+                Log.d(TAG, "全局VPN模式 - 代理已清除，流量自动走隧道")
+            } catch (e: Exception) {
+                Log.e(TAG, "清除代理失败: ${e.message}")
+            }
+        }
+    }
+
+    private fun showWelcomePage(useProxy: Boolean) {
+        val modeLabel = if (useProxy) {
+            "🔵 应用代理模式（通过 127.0.0.1:8080 代理访问 Tailnet 设备）"
+        } else {
+            "🟢 全局VPN模式（流量自动走 Tailscale 隧道，无需代理）"
+        }
+
+        webView.loadData(
+            """
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+                    h1 { color: #333; font-size: 20px; }
+                    .mode { background: ${if (useProxy) "#e3f2fd" else "#e8f5e9"}; padding: 12px; border-radius: 8px; margin: 12px 0; font-size: 15px; }
+                    .info { background: white; padding: 15px; border-radius: 8px; margin: 10px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+                    .info h2 { font-size: 16px; color: #555; margin-bottom: 8px; }
+                    .info p { font-size: 14px; color: #666; margin: 4px 0; }
+                </style>
+            </head>
+            <body>
+                <h1>🌐 Tailscale 内置浏览器</h1>
+                <div class="mode">
+                    <strong>当前模式:</strong><br>$modeLabel
+                </div>
+                <div class="info">
+                    <h2>使用方法</h2>
+                    <p>在地址栏输入 Tailnet 内设备的 URL：</p>
+                    <p>• http://100.64.0.1/ - 访问 HTTP 服务</p>
+                    <p>• http://100.64.0.2:8080/ - 访问带端口的服务</p>
+                    <p>• http://device-name/ - 使用 MagicDNS 名称</p>
+                </div>
+                <div class="info">
+                    <h2>模式说明</h2>
+                    <p>• <strong>全局VPN模式</strong>: VPN 开关开启，所有流量自动走隧道</p>
+                    <p>• <strong>应用代理模式</strong>: VPN 关闭，浏览器通过代理访问 Tailnet</p>
+                </div>
+            </body>
+            </html>
+            """.trimIndent(),
+            "text/html",
+            "UTF-8"
+        )
     }
 
     /**
@@ -215,17 +264,6 @@ class BuiltInBrowserActivity : AppCompatActivity() {
         return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
     }
 
-    /**
-     * VPN 关闭时显示警告
-     */
-    private fun showVpnOffWarning() {
-        android.widget.Toast.makeText(
-            this,
-            "请先在主页面开启 VPN 开关，才能通过 Tailscale 访问其他设备",
-            android.widget.Toast.LENGTH_LONG
-        ).show()
-    }
-
     private fun loadUrl(url: String) {
         var targetUrl = url.trim()
         if (!targetUrl.startsWith("http://") && !targetUrl.startsWith("https://")) {
@@ -234,6 +272,7 @@ class BuiltInBrowserActivity : AppCompatActivity() {
         webView.loadUrl(targetUrl)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (webView.canGoBack()) {
             webView.goBack()
