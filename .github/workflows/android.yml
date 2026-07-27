@@ -40,5 +40,12 @@ jobs:
       - name: Build APKs
         run: make tailscale-debug.apk
 
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tailscale-debug-apk
+          path: tailscale-debug.apk
+          retention-days: 30
+
       - name: Run tests
         run: make test
