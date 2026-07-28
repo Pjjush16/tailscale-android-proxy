@@ -40,6 +40,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:enableOnBackInvokedCallback="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.App.SplashScreen">
         <activity
             android:name="MainActivity"
