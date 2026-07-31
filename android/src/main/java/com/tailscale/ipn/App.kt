@@ -633,9 +633,10 @@ open class UninitializedApp : Application() {
 
   // Proxy mode management - tsnet-based proxy without VPN permissions
   fun startProxy() {
+    val context = this
     applicationScope.launch {
       try {
-        val dataDir = this@App.filesDir.absolutePath
+        val dataDir = context.filesDir.absolutePath
         val hostname = android.os.Build.MODEL.replace(" ", "-").lowercase()
         Libtailscale.startProxy(dataDir, hostname, 1080, 8080)
         TSLog.d(TAG, "Proxy mode started: SOCKS5=127.0.0.1:1080, HTTP=127.0.0.1:8080")
