@@ -52,7 +52,7 @@ jobs:
         run: make clean
         
       - name: Build libtailscale AAR
-        run: make build-unstripped-aar
+        run: make libtailscale
         
       - name: Build debug APK with signing
         run: |
