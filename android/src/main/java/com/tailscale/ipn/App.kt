@@ -59,8 +59,6 @@ import kotlinx.serialization.json.Json
 import libtailscale.Libtailscale
 
 class App : UninitializedApp(), libtailscale.AppContext, ViewModelStoreOwner {
-  val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
   companion object {
     private const val FILE_CHANNEL_ID = "tailscale-files"
     // Key to store the SAF URI in EncryptedSharedPreferences.
@@ -503,6 +501,8 @@ class App : UninitializedApp(), libtailscale.AppContext, ViewModelStoreOwner {
  * effects from starting the Go backend (such as launching the VPN).
  */
 open class UninitializedApp : Application() {
+  val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
   companion object {
     const val TAG = "UninitializedApp"
     const val STATUS_NOTIFICATION_ID = 1
